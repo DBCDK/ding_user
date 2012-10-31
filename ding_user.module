@@ -530,18 +530,21 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
   $profile_tabs = module_invoke_all('user_profile2_tabs');
   foreach ($profile_tabs as $profile_tab) {
     if ($form['#user_category'] == $profile_tab->type) {
-      $form['#title'] = $profile_tab->label;      
+      $form['#title'] = $profile_tab->label;
       unset($form['account']);
       if (is_array($profile_tab->form)) {
         foreach ($profile_tab->form as $form_tab) {
-          $form += drupal_get_form($form_tab);
+          $extra = drupal_get_form($form_tab);
+          $form += $extra;
         }
       }
       else {
         $form+=drupal_get_form($profile_tab->form);
       }
     }
-  }
+  }  
+  // @ TODO .. is it better to unset save button??  
+  $form['actions']['submit']['#value'] = t('refresh_page');
 }
 
 function _ding_user_create_profile2($account) {
@@ -648,6 +651,8 @@ function ding_user_get_creds($account = NULL) {
   }
 
   $roles = array_values($GLOBALS['user']->roles);
+
+  
   // Log out user who are authenticated but has no other roles (i.e. ding user)
   if (user_is_logged_in() && sizeof($roles) == 1 && $roles[0] == 'authenticated user') {
     // unless we're using persistent login, and they have a persistent login cookie.
