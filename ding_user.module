@@ -262,15 +262,15 @@ function ding_user_user_presave(&$edit, $account, $category) {
       // If update_account fails, we're in trouble, as we're too far in to
       // set form errors. So we'll just tell the user that it couldn't be, and
       // not save the fields.
-      drupal_set_message(t("There was a problem communicating with library system. Please contact the site administrator."), 'error');
+      drupal_set_message(t('There was a problem communicating with library system. Please contact the site administrator.', array(), array('context' => 'ding_user')), 'error');
       watchdog_exception('ding_user', $e);
       if (isset($changes['mail'])) {
-        drupal_set_message(t("Email not saved."), 'error');
+        drupal_set_message(t('Email not saved.', array(), array('context' => 'ding_user')), 'error');
         // Don't save a new email address.
         unset($edit['mail']);
       }
       if (isset($changes['pass'])) {
-        drupal_set_message(t("New pincode not saved."), 'error');
+        drupal_set_message(t('New pincode not saved.', array(), array('context' => 'ding_user')), 'error');
         // Pass was already unset.
       }
     }
@@ -416,7 +416,7 @@ function ding_user_user_login_validate($form, &$form_state) {
           else {
             $type = 'warning';
           }
-          drupal_set_message($message, $type);
+          drupal_set_message(t($message, array(), array('context' => 'ding_user')), $type);
         }
       }
     }
@@ -455,7 +455,7 @@ function _ding_user_create_account($auth_name, $auth_res) {
     $account = user_save(drupal_anonymous_user(), $userinfo);
     // Terminate if an error occurred during user_save().
     if (!$account) {
-      drupal_set_message(t("Error saving user account."), 'error');
+      drupal_set_message(t('Error saving user account.', array(), array('context' => 'ding_user')), 'error');
       return;
     }
     user_set_authmaps($account, array("authname_ding_user" => $auth_name));
@@ -524,7 +524,7 @@ function _ding_user_profile2_tabs($account) {
  * Implements hook_form_FORM_ID_alter. (profile2_form).
  * get the correct form to display from modules implementing hook_profile2_tab.
  * the form may be an array of form id's
- *  
+ *
  * check if user is logged in. If user is not logged in form_ids may not be set
  * */
 function ding_user_form_profile2_form_alter(&$form, &$form_state) {
@@ -670,7 +670,7 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
       user_module_invoke('logout', $account, 'user');
       session_destroy();
       $GLOBALS['user'] = drupal_anonymous_user();
-      drupal_set_message(t('Your session has timed out.'));
+      drupal_set_message(t('Your session has timed out.', array(), array('context' => 'ding_user')));
       drupal_goto();
     }
 
@@ -804,4 +804,3 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
 
   }
 
-  
