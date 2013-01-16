@@ -389,12 +389,13 @@ function ding_user_user_login_validate($form, &$form_state) {
       // profile, or themselves in the profile_init callback.
       ding_user_save_creds($auth_res, $account);
 
-      //$profile = _ding_user_create_profile2 ($account);
+
       // set additional tabs in profile2
       _ding_user_profile2_tabs($account);
 
       // Let provider initialise the profile. Assume they save it if need be.
       if (ding_provider_implements('user', 'profile_init')) {
+        $profile = _ding_user_create_profile2 ($account);
         ding_provider_invoke('user', 'profile_init', $profile, $auth_res);
       }
 
@@ -668,12 +669,13 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
 
       watchdog('user', 'Session timeout for %name.', array('%name' => $account->name));
       user_module_invoke('logout', $account, 'user');
+
       session_destroy();
+
       $GLOBALS['user'] = drupal_anonymous_user();
       drupal_set_message(t('Your session has timed out.', array(), array('context' => 'ding_user')));
-      drupal_goto();
+      //drupal_goto();
     }
-
     throw new DingProviderAuthException;
   }
 
