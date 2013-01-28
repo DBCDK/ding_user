@@ -181,8 +181,6 @@ function ding_user_form_user_profile_form_alter(&$form, &$form_state) {
   }
 }
 
-;
-
 /**
  * Password confirm element process.
  *
@@ -503,7 +501,6 @@ function _ding_user_profile2_tabs($account) {
                 'label' => $profile_tab->label,
                 'userCategory' => TRUE,
                 'userView' => TRUE,
-              // 'form' => $profile_tab->form,
               )
       );
       $profile_type->save();
@@ -525,8 +522,6 @@ function _ding_user_profile2_tabs($account) {
  * Implements hook_form_FORM_ID_alter. (profile2_form).
  * get the correct form to display from modules implementing hook_profile2_tab.
  * the form may be an array of form id's
- *
- * check if user is logged in. If user is not logged in form_ids may not be set
  * */
 function ding_user_form_profile2_form_alter(&$form, &$form_state) {
   global $user;
@@ -536,7 +531,6 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
       foreach ($profile_tabs as $profile_tab) {
         if ($form['#user_category'] == $profile_tab->type) {
           $form['#title'] = $profile_tab->label;
-          unset($form['account']);
           if (is_array($profile_tab->form)) {
             foreach ($profile_tab->form as $form_tab) {
               $tab = drupal_get_form($form_tab);
@@ -550,10 +544,13 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
         }
       }
     }
-    unset($form['actions']);
   }
 }
 
+/**
+ * deprecated; this method creates óne hardcoded profile2 profile
+ *
+ */
   function _ding_user_create_profile2($account) {
     $profile = ding_user_provider_profile($account);
     if (!$profile) {
