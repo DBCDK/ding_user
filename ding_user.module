@@ -546,6 +546,7 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
       }
     }
   }
+  return $form;
 }
 
 /**
@@ -664,7 +665,6 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
       if (module_exists('ding_persistent_login') && $creds = ding_persistent_login_get_creds($account->uid)) {
         return $creds;
       }
-
       watchdog('user', 'Session timeout for %name.', array('%name' => $account->name));
       user_module_invoke('logout', $account, 'user');
 
@@ -717,13 +717,15 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
    * Check if the given account is a user authenticated through a provider.
    */
   function ding_user_is_provider_user($account) {
+    static $uid;
     static $names;
-    if (!isset($names)) {
+    if (!isset($uid) || $uid != $account->uid) {
       $names = db_select('authmap')
               ->fields('authmap', array('authname'))
               ->condition('module', 'ding_user')
               ->condition('uid', $account->uid)
               ->execute()->fetchAll();
+      $uid = $account->uid;
     }
     return !empty($names);
   }
