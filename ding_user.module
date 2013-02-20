@@ -358,14 +358,18 @@ function ding_user_default_authname($name) {
  * user/provider.
  */
 function ding_user_user_login_validate($form, &$form_state) {
+  
+  
+  dpm(func_get_args());
+  
   // If $form_state['uid'] is set and has a true value, Drupal already found a
   // user, so we don't bother. Also, we require name and pass.
   if (isset($form_state['uid']) && $form_state['uid'] || empty($form_state['values']['name']) || empty($form_state['values']['pass'])) {
     return;
   }
   try {
-    $method_provider = !empty($form_state['values']['authentication_provider']) ? $form_state['values']['authentication_provider'] : 'user';
-    $auth_res = ding_provider_invoke($method_provider, 'authenticate', $form_state['values']['name'], $form_state['values']['pass']);
+    $authentication_provider = !empty($form_state['values']['authentication_provider']) ? $form_state['values']['authentication_provider'] : 'user';
+    $auth_res = ding_provider_invoke($authentication_provider, 'authenticate', $form_state['values']['name'], $form_state['values']['pass']);
     if (!is_array($auth_res) || !isset($auth_res['success'])) {
       watchdog('ding_user', 'Provider returned invalid result: @res', array('@res' => print_r($auth_res, TRUE)), WATCHDOG_DEBUG);
       return;
@@ -397,7 +401,15 @@ function ding_user_user_login_validate($form, &$form_state) {
         $profile = _ding_user_create_profile2 ($account);
         ding_provider_invoke('user', 'profile_init', $profile, $auth_res);
       }
+      
+      if( isset($form_state['mail_me']) ) {
+        if( ding_provider_implements('user', 'mail_me') ) {
+          ding_provider_invoke('user', 'mail_me', $form_state['mail_me'], $account);          
+        }
+      }
 
+      dpm(user_preferred_language($account));
+      
       // Log user in.
       $form_state['uid'] = $account->uid;
       // We're not calling user_login_submit like user_external_login_register
