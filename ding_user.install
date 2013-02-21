@@ -16,6 +16,16 @@ function ding_user_schema() {
   return $schema;
 }
 
+/** Implements hook_schema_alter
+ * add index on uid- and module-columns in authmap table
+ * to avoid full-table scans in ding_user_is_provider_user
+ */
+function ding_user_schema_alter(&$schema){
+  db_add_index('authmap', 'authmap_module_idx', array('module'));
+  db_add_index('authmap', 'authmap_uid_idx', array('uid'));
+}
+
+
 /**
  * Create table for credential caching.
  */
@@ -42,5 +52,13 @@ function ding_user_update_7002(&$sandbox) {
       ))
     ->condition('name','ding_user','=')
     ->execute();
+}
+
+/** Implements hook_update_N 
+ * add indexes on uid and module in authmap-table 
+ */
+function ding_user_update_7003(&$sandbox) {
+  db_add_index('authmap', 'authmap_module_idx', array('module'));
+  db_add_index('authmap', 'authmap_uid_idx', array('uid'));
 }
 
