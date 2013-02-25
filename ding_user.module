@@ -364,8 +364,8 @@ function ding_user_user_login_validate($form, &$form_state) {
     return;
   }
   try {
-    $method_provider = !empty($form_state['values']['authentication_provider']) ? $form_state['values']['authentication_provider'] : 'user';
-    $auth_res = ding_provider_invoke($method_provider, 'authenticate', $form_state['values']['name'], $form_state['values']['pass']);
+    $authentication_provider = !empty($form_state['values']['authentication_provider']) ? $form_state['values']['authentication_provider'] : 'user';
+    $auth_res = ding_provider_invoke($authentication_provider, 'authenticate', $form_state['values']['name'], $form_state['values']['pass']);
     if (!is_array($auth_res) || !isset($auth_res['success'])) {
       watchdog('ding_user', 'Provider returned invalid result: @res', array('@res' => print_r($auth_res, TRUE)), WATCHDOG_DEBUG);
       return;
@@ -396,6 +396,12 @@ function ding_user_user_login_validate($form, &$form_state) {
       if (ding_provider_implements('user', 'profile_init')) {
         $profile = _ding_user_create_profile2 ($account);
         ding_provider_invoke('user', 'profile_init', $profile, $auth_res);
+      }
+      
+      if( isset($form_state['mail_me']) ) {
+        if( ding_provider_implements('user', 'mail_me') ) {
+          ding_provider_invoke('user', 'mail_me', $form_state['mail_me'], $account);          
+        }
       }
 
       // Log user in.
@@ -546,6 +552,7 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
       }
     }
   }
+  return $form;
 }
 
 /**
@@ -664,7 +671,6 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
       if (module_exists('ding_persistent_login') && $creds = ding_persistent_login_get_creds($account->uid)) {
         return $creds;
       }
-
       watchdog('user', 'Session timeout for %name.', array('%name' => $account->name));
       user_module_invoke('logout', $account, 'user');
 
@@ -717,13 +723,15 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
    * Check if the given account is a user authenticated through a provider.
    */
   function ding_user_is_provider_user($account) {
+    static $uid;
     static $names;
-    if (!isset($names)) {
+    if (!isset($uid) || $uid != $account->uid) {
       $names = db_select('authmap')
               ->fields('authmap', array('authname'))
               ->condition('module', 'ding_user')
               ->condition('uid', $account->uid)
               ->execute()->fetchAll();
+      $uid = $account->uid;
     }
     return !empty($names);
   }

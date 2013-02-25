@@ -1,10 +1,20 @@
 <?php
+
 /**
  * Implements hook_install().
  */
 function ding_user_install() {
   // Use DingUserCredentialsCache instead of default DrupalDatabaseCache
   variable_set('cache_class_cache_ding_user_credentials', 'DingUserCredentialsCache');
+  
+ // add index on uid- and module-columns in authmap table
+ // to avoid full-table scans in ding_user_is_provider_user
+  if (!db_index_exists('authmap', 'authmap_module_idx')) {
+    db_add_index('authmap', 'authmap_module_idx', array('module'));
+  }
+  if(!db_index_exists('authmap', 'authmap_uid_idx')) {
+    db_add_index('authmap', 'authmap_uid_idx', array('uid'));
+  }
 }
 
 /**
@@ -34,13 +44,21 @@ function ding_user_update_7001(&$sandbox) {
 /**
  * Implements hook_update_N,
  * set weight of ding_user to -1 to ensure it is called first
- **/
+ * */
 function ding_user_update_7002(&$sandbox) {
   $updated = db_update('system')
-    ->fields (array(
+      ->fields(array(
         'weight' => -1,
       ))
-    ->condition('name','ding_user','=')
-    ->execute();
+      ->condition('name', 'ding_user', '=')
+      ->execute();
+}
+
+/** Implements hook_update_N 
+ * add indexes on uid and module in authmap-table 
+ */
+function ding_user_update_7003(&$sandbox) {
+  db_add_index('authmap', 'authmap_module_idx', array('module'));
+  db_add_index('authmap', 'authmap_uid_idx', array('uid'));
 }
 
