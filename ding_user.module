@@ -47,7 +47,14 @@ function ding_user_menu() {
     'file' => 'ding_user.pages.inc',
     'type' => MENU_CALLBACK,
   );
-
+  $items['admin/config/ding/user'] = array(
+    'title'             => 'Ding user',
+    'description'       => 'Ding user settings : Timeout',
+    'page callback'     => 'drupal_get_form',
+    'page arguments'    => array('ding_user_lifetime'),
+    'access arguments'  => array('administer search'),
+    'file'              => 'ding_user.admin.inc',
+  );
   return $items;
 }
 
@@ -397,10 +404,10 @@ function ding_user_user_login_validate($form, &$form_state) {
         $profile = _ding_user_create_profile2 ($account);
         ding_provider_invoke('user', 'profile_init', $profile, $auth_res);
       }
-      
+
       if( isset($form_state['mail_me']) ) {
         if( ding_provider_implements('user', 'mail_me') ) {
-          ding_provider_invoke('user', 'mail_me', $form_state['mail_me'], $account);          
+          ding_provider_invoke('user', 'mail_me', $form_state['mail_me'], $account);
         }
       }
 
@@ -556,7 +563,7 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
 }
 
 /**
- * deprecated; this method creates óne hardcoded profile2 profile
+ * deprecated; this method creates one hardcoded profile2 profile
  *
  */
   function _ding_user_create_profile2($account) {
@@ -649,6 +656,7 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
       $account = $GLOBALS['user'];
     }
     if ($cache = cache_get(session_name() . '-' . $account->uid, 'cache_ding_user_credentials')) {
+      // dpm(date(DATE_RFC822 , $cache->created) . ' : ' . date(DATE_RFC822 , $cache->expire) );
       // Check that the credentials is valid.
       // note: Only the Alma provider implements 'is_authenticated', and it simply checks if login and password is set.
       //       So: If the user is cached, $cache->data is returned in any case.
@@ -672,15 +680,17 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
         return $creds;
       }
       watchdog('user', 'Session timeout for %name.', array('%name' => $account->name));
-      user_module_invoke('logout', $account, 'user');
-
+      user_module_invoke('logout', $account, 'user'); // invoke hook_user_logout()
       session_destroy();
-
       $GLOBALS['user'] = drupal_anonymous_user();
-      drupal_set_message(t('Your session has timed out.', array(), array('context' => 'ding_user')));
-      //drupal_goto();
+      // drupal_goto(); // drupal_goto() mess up AJAX responses if timed out.
+
+      throw new DingProviderTimeoutException;
+
     }
+
     throw new DingProviderAuthException;
+
   }
 
   /**
@@ -736,6 +746,42 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
     return !empty($names);
   }
 
+
+  /**
+   * Implements hook_init().
+   *
+   * Check if the user's session has timed out, and if yes, add javascript to the page (or AJAX call).
+   */
+  function ding_user_init(){
+    module_load_include('module', 'ding_user');
+    $account = $GLOBALS['user'];
+
+    try {
+      $creds = ding_user_get_creds();
+      if ( variable_get('ding_user_creds_lifetype', 'initial') == 'refresh' ) {
+        $auth_res['creds'] = $creds;
+        ding_user_save_creds($auth_res, $account); // NB: also resets cache->created
+      }
+    }
+    catch (DingProviderTimeoutException $e) {
+      // dpm('DingProviderTimeoutException');
+      drupal_add_js(
+        drupal_get_path('module', 'ding_user') . '/js/user_timeout.js',
+        array(
+          'scope' => 'footer',
+          'every_page'=>FALSE,
+          'group'=>JS_DEFAULT,
+          'cache'=>FALSE,
+        )
+      );
+    }
+    catch (DingProviderAuthException $e) {
+      // Anonymous user
+    }
+  }
+
+
+
   include_once('ding_user_comments.inc');
 
   /**
@@ -764,11 +810,13 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
           $item = $this->prepareItem($item);
           if ($item) {
             $cache[$item->cid] = $item;
-            // postpone expire ding user credentials
-            db_update($this->bin)
-                ->fields(array('expire' => REQUEST_TIME + variable_get('ding_user_creds_lifetime', DING_USER_DEFAULT_CREDS_LIFETIME),))
-                ->condition('cid', $item->cid)
-                ->execute();
+            if ( variable_get('ding_user_creds_lifetype', 'initial') == 'refresh' ) {
+              // postpone expire ding user credentials
+              db_update($this->bin)
+                  ->fields(array('expire' => REQUEST_TIME + variable_get('ding_user_creds_lifetime', DING_USER_DEFAULT_CREDS_LIFETIME),))
+                  ->condition('cid', $item->cid)
+                  ->execute();
+            }
           }
         }
         $cids = array_diff($cids, array_keys($cache));
