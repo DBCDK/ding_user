@@ -64,7 +64,7 @@ function ding_user_menu() {
  *
  * Check if the user's session has timed out, and update timeout if ding_user_creds_lifetype = 'refresh'.
  */
-function ding_user_init(){
+function ding_user_init() {
   module_load_include('module', 'ding_user');
   $account = $GLOBALS['user'];
   try {
@@ -426,12 +426,12 @@ function ding_user_user_login_validate($form, &$form_state) {
 
       // Let provider initialise the profile. Assume they save it if need be.
       if (ding_provider_implements('user', 'profile_init')) {
-        $profile = _ding_user_create_profile2 ($account);
+        $profile = _ding_user_create_profile2($account);
         ding_provider_invoke('user', 'profile_init', $profile, $auth_res);
       }
 
-      if( isset($form_state['mail_me']) ) {
-        if( ding_provider_implements('user', 'mail_me') ) {
+      if ( isset($form_state['mail_me']) ) {
+        if ( ding_provider_implements('user', 'mail_me') ) {
           ding_provider_invoke('user', 'mail_me', $form_state['mail_me'], $account);
         }
       }
@@ -735,10 +735,10 @@ function ding_user_timeout_msg() {
   drupal_add_js(
     drupal_get_path('module', 'ding_user') . '/js/user_timeout.js',
     array(
-      'every_page'=>FALSE,
-      'group'=>JS_DEFAULT,
-      'cache'=>FALSE,
-      'weight'=>100,
+      'every_page' => FALSE,
+      'group' => JS_DEFAULT,
+      'cache' => FALSE,
+      'weight' => 100,
     )
   );
 }
@@ -827,7 +827,7 @@ class DingUserCredentialsCache extends DrupalDatabaseCache {
           if ( variable_get('ding_user_creds_lifetype', 'initial') == 'refresh' ) {
             // postpone expire ding user credentials
             db_update($this->bin)
-                ->fields(array('expire' => REQUEST_TIME + variable_get('ding_user_creds_lifetime', DING_USER_DEFAULT_CREDS_LIFETIME),))
+                ->fields(array('expire' => REQUEST_TIME + variable_get('ding_user_creds_lifetime', DING_USER_DEFAULT_CREDS_LIFETIME), ))
                 ->condition('cid', $item->cid)
                 ->execute();
           }
