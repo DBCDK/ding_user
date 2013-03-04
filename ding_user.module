@@ -75,7 +75,7 @@ function ding_user_init(){
     }
   }
   catch (DingProviderTimeoutException $e) {
-    // Ding user timeout
+    ding_user_timeout_msg();
   }
   catch (DingProviderAuthException $e) {
     // Anonymous user
@@ -708,7 +708,6 @@ function ding_user_get_creds($account = NULL) {
     session_destroy();
     $GLOBALS['user'] = drupal_anonymous_user();
     // drupal_goto(); // drupal_goto() mess up AJAX responses if timed out.
-    ding_user_timeout_msg();
 
     throw new DingProviderTimeoutException;
 
