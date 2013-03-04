@@ -725,7 +725,7 @@ function ding_user_timeout_msg() {
   $message = t('Your session has timed out.', array(), array('context' => 'ding_user'));
   drupal_set_message($message, 'status');
   // catch timeout on AJAX in forms
-  if ( contains_substr(current_path(), 'system/ajax', 0) || contains_substr(current_path(), 'reservation/ajax', 0) ) {
+  if ( current_path() == 'system/ajax' ) {
     $commands[] = ajax_command_alert($message);
     $callback = array('#type' => 'ajax', '#commands' => $commands);
     ajax_deliver($callback);
@@ -873,11 +873,3 @@ class DingUserCredentialsCache extends DrupalDatabaseCache {
   }
 
 }
-
-function contains_substr($mainStr, $str, $loc = false) {
-    if ($loc === false) return (strpos($mainStr, $str) !== false);
-    if (strlen($mainStr) < strlen($str)) return false;
-    if (($loc + strlen($str)) > strlen($mainStr)) return false;
-    return (strcmp(substr($mainStr, $loc, strlen($str)), $str) == 0);
-}
-
