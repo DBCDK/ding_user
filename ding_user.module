@@ -722,25 +722,29 @@ function ding_user_get_creds($account = NULL) {
  * Set timeout messages.
  */
 function ding_user_timeout_msg() {
-  $message = t('Your session has timed out.', array(), array('context' => 'ding_user'));
+  global $language ;
+  $message = t('Your session has timed out!.', array(), array('context' => 'ding_user'));
   drupal_set_message($message, 'status');
   // catch timeout on AJAX in forms
   if ( current_path() == 'system/ajax' ) {
     $commands[] = ajax_command_alert($message);
+    $output = '<a href="/' . $language->language . '/user/login">' . t('Log in') . '</a>';
+    $commands[] = ajax_command_replace('a[href="/' . $language->language . '/user/logout"]', $output);
     $callback = array('#type' => 'ajax', '#commands' => $commands);
     ajax_deliver($callback);
     drupal_exit();
+  } else {
+      // catch timeout everything else.
+      drupal_add_js(
+        drupal_get_path('module', 'ding_user') . '/js/user_timeout.js',
+        array(
+          'every_page' => FALSE,
+          'group' => JS_DEFAULT,
+          'cache' => FALSE,
+          'weight' => 100,
+        )
+      );
   }
-  // catch timeout everything else.
-  drupal_add_js(
-    drupal_get_path('module', 'ding_user') . '/js/user_timeout.js',
-    array(
-      'every_page' => FALSE,
-      'group' => JS_DEFAULT,
-      'cache' => FALSE,
-      'weight' => 100,
-    )
-  );
 }
 
 /**
