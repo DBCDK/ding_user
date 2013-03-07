@@ -723,7 +723,7 @@ function ding_user_get_creds($account = NULL) {
  */
 function ding_user_timeout_msg() {
   global $language ;
-  $message = t('Your session has timed out!.', array(), array('context' => 'ding_user'));
+  $message = t('Your session has timed out.', array(), array('context' => 'ding_user'));
   drupal_set_message($message, 'status');
   // catch timeout on AJAX in forms
   if ( current_path() == 'system/ajax' ) {
