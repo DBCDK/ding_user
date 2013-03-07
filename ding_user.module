@@ -728,22 +728,22 @@ function ding_user_timeout_msg() {
   // catch timeout on AJAX in forms
   if ( current_path() == 'system/ajax' ) {
     $commands[] = ajax_command_alert($message);
-    $output = '<a href="/' . $language->language . '/user/login">' . t('Log in') . '</a>';
-    $commands[] = ajax_command_replace('a[href="/' . $language->language . '/user/logout"]', $output);
+    $output = '<a href="' . $GLOBALS['base_path'] . $language->language . '/user/login">' . t('Log in') . '</a>';
+    $commands[] = ajax_command_replace('a[href="' . $GLOBALS['base_path'] . $language->language . '/user/logout"]', $output);
     $callback = array('#type' => 'ajax', '#commands' => $commands);
     ajax_deliver($callback);
     drupal_exit();
   } else {
-      // catch timeout everything else.
-      drupal_add_js(
-        drupal_get_path('module', 'ding_user') . '/js/user_timeout.js',
-        array(
-          'every_page' => FALSE,
-          'group' => JS_DEFAULT,
-          'cache' => FALSE,
-          'weight' => 100,
-        )
-      );
+    // catch timeout everything else.
+    drupal_add_js(
+      drupal_get_path('module', 'ding_user') . '/js/user_timeout.js',
+      array(
+        'every_page' => FALSE,
+        'group' => JS_DEFAULT,
+        'cache' => FALSE,
+        'weight' => 100,
+      )
+    );
   }
 }
 
