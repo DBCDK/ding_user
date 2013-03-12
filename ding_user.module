@@ -65,6 +65,10 @@ function ding_user_menu() {
  * Check if the user's session has timed out, and update timeout if ding_user_creds_lifetype = 'refresh'.
  */
 function ding_user_init() {
+  global $user;
+  if (!ding_user_is_provider_user($user)){
+    return true;
+  }
   module_load_include('module', 'ding_user');
   $account = $GLOBALS['user'];
   try {
