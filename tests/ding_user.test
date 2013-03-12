@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Test ding user implementation.
+ */
+
+/**
  * Check that basic user login functionality works.
  */
 class DingUserFunctionalTest extends DrupalWebTestCase {
