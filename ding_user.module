@@ -65,6 +65,10 @@ function ding_user_menu() {
  * Check if the user's session has timed out, and update timeout if ding_user_creds_lifetype = 'refresh'.
  */
 function ding_user_init() {
+  //Fix for user reset
+  if (isset($_GET['pass-reset-token']) || (isset($_POST['form_id']) && $_POST['form_id'] == 'user_pass_reset')) {
+    return;
+  }
   global $user;
   if (!ding_user_is_provider_user($user)){
     return true;
