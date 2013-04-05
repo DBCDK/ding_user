@@ -581,11 +581,11 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
           if (is_array($profile_tab->form)) {
             foreach ($profile_tab->form as $form_tab) {
               $tab = drupal_get_form($form_tab);
-              $form += $tab;
+              $form['profile_' . $profile_tab->type] += $tab;
             }
           }
           elseif (!empty($profile_tab->form)) {
-            $form+=drupal_get_form($profile_tab->form);
+            $form['profile_' . $profile_tab->type] = drupal_get_form($profile_tab->form);
           }
           drupal_set_title($form['#title']);
         }
