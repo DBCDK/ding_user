@@ -202,7 +202,7 @@ function ding_user_form_user_profile_form_alter(&$form, &$form_state) {
 
     // Add pincode change field. Defaults to 4 chars, as that seems the common
     // option, providers may form_alter this.
-    $form['account']['pincode'] = array(
+    $form['account']['pass'] = array(
       '#type' => 'password_confirm',
       '#size' => 4,
       '#maxlength' => 4,
@@ -224,6 +224,19 @@ function ding_user_form_user_profile_form_alter(&$form, &$form_state) {
     if ($pos !== FALSE) {
       unset($form['#validate'][$pos]);
     }
+  } else {
+    $form['account']['pass'] = array(
+      '#type' => 'password_confirm',
+      '#size' => 4,
+      '#maxlength' => 4,
+      '#process' => array(
+        'form_process_password_confirm',
+        // Not adding user_form_process_password_confirm here, as it only adds
+        // the strength checker, which we don't want.
+        'ding_user_form_process_password_confirm',
+      ),
+      '#description' => t('To change the current pincode, enter the new pincode in both fields.'),
+    );
   }
 }
 
