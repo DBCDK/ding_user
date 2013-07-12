@@ -65,19 +65,19 @@ function ding_user_menu() {
  * Check if the user's session has timed out, and update timeout if ding_user_creds_lifetype = 'refresh'.
  */
 function ding_user_init() {
-  global $user, $is_https;
 
+  global $user, $is_https;
 
   if (variable_get('securepages_enable', 0) && basename($_SERVER['PHP_SELF']) == 'index.php' && php_sapi_name() != 'cli' && !$is_https) {
     return;
   }
 
   //Fix for user reset
-  if (isset($_GET['pass-reset-token']) || (isset($_POST['form_id']) && $_POST['form_id'] == 'user_pass_reset')) {
+  else if ($user->uid == 0 ||  isset($_GET['pass-reset-token']) || (isset($_POST['form_id']) && $_POST['form_id'] == 'user_pass_reset')) {
     return;
   }
-  global $user;
-  if (!ding_user_is_provider_user($user)){
+
+  else if (!ding_user_is_provider_user($user)){
     return true;
   }
 
