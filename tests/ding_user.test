@@ -21,14 +21,11 @@ class DingUserFunctionalTest extends DrupalWebTestCase {
   function setUp() {
     $this->profile = 'minimal';
 
-    //For some uninvestigated reason devel needs to be enabled to make this testcase go green
     parent::setUp(array(
       'ding_user',
       'ding_provider',
       'connie',
       'ding_user_test',
-      'devel',
-      'user',
     ));
   }
 
