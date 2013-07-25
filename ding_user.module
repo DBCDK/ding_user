@@ -48,16 +48,15 @@ function ding_user_menu() {
     'type' => MENU_CALLBACK,
   );
   $items['admin/config/ding/user'] = array(
-    'title'             => 'Ding user',
-    'description'       => 'Ding user settings : Timeout',
-    'page callback'     => 'drupal_get_form',
-    'page arguments'    => array('ding_user_lifetime'),
-    'access arguments'  => array('administer search'),
-    'file'              => 'ding_user.admin.inc',
+    'title' => 'Ding user',
+    'description' => 'Ding user settings : Timeout',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ding_user_lifetime'),
+    'access arguments' => array('administer search'),
+    'file' => 'ding_user.admin.inc',
   );
   return $items;
 }
-
 
 /**
  * Implements hook_init().
@@ -77,25 +76,22 @@ function ding_user_init() {
     return;
   }
   global $user;
-  if (!ding_user_is_provider_user($user)){
+  if (!ding_user_is_provider_user($user)) {
     return true;
   }
 
   try {
     $creds = ding_user_get_creds();
-    if ( variable_get('ding_user_creds_lifetype', 'initial') == 'refresh' ) {
+    if (variable_get('ding_user_creds_lifetype', 'initial') == 'refresh') {
       $auth_res['creds'] = $creds;
       ding_user_save_creds($auth_res, $user); // NB: also resets cache->created
     }
-  }
-  catch (DingProviderTimeoutException $e) {
+  } catch (DingProviderTimeoutException $e) {
     ding_user_timeout_msg();
-  }
-  catch (DingProviderAuthException $e) {
+  } catch (DingProviderAuthException $e) {
     // Anonymous user
   }
 }
-
 
 /**
  * Implements hook_menu_alter().
@@ -444,8 +440,8 @@ function ding_user_user_login_validate($form, &$form_state) {
         ding_provider_invoke('user', 'profile_init', $profile, $auth_res);
       }
 
-      if ( isset($form_state['mail_me']) ) {
-        if ( ding_provider_implements('user', 'mail_me') ) {
+      if (isset($form_state['mail_me'])) {
+        if (ding_provider_implements('user', 'mail_me')) {
           ding_provider_invoke('user', 'mail_me', $form_state['mail_me'], $account);
         }
       }
@@ -582,16 +578,18 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
     if ((ding_user_is_provider_user($user))) {
       $profile_tabs = module_invoke_all('user_profile2_tabs');
       foreach ($profile_tabs as $profile_tab) {
+        $profile = profile2_load_by_user($user, $profile_tab->type);
         if ($form['#user_category'] == $profile_tab->type) {
           $form['#title'] = $profile_tab->label;
           if (is_array($profile_tab->form)) {
             foreach ($profile_tab->form as $form_tab) {
-              $tab = drupal_get_form($form_tab);
-              $form['profile_' . $profile_tab->type] += $tab;
+              $form += drupal_get_form($form_tab);
+              field_attach_form('profile2', $profile, $form, $form_state);
             }
           }
           elseif (!empty($profile_tab->form)) {
-            $form['profile_' . $profile_tab->type] = drupal_get_form($profile_tab->form);
+            $form += drupal_get_form($profile_tab->form);
+            field_attach_form('profile2', $profile, $form, $form_state);
           }
           drupal_set_title($form['#title']);
         }
@@ -724,24 +722,21 @@ function ding_user_get_creds($account = NULL) {
     // drupal_goto(); // drupal_goto() mess up AJAX responses if timed out.
 
     throw new DingProviderTimeoutException;
-
   }
 
   throw new DingProviderAuthException;
-
 }
-
 
 /**
  * Set timeout messages.
  */
 function ding_user_timeout_msg() {
-  global $language ;
-  $lang_path = ( !empty($language->prefix) ) ? $language->prefix . '/' : '';
+  global $language;
+  $lang_path = (!empty($language->prefix) ) ? $language->prefix . '/' : '';
   $message = t('Your session has timed out.', array(), array('context' => 'ding_user'));
   drupal_set_message($message, 'status');
   // catch timeout on AJAX in forms
-  if ( current_path() == 'system/ajax' ) {
+  if (current_path() == 'system/ajax') {
     $commands[] = ajax_command_alert($message);
     $output = '<a href="' . $GLOBALS['base_path'] . $lang_path . 'user/login">' . t('Log in') . '</a>';
     $path = $GLOBALS['base_path'] . $lang_path . 'user/logout';
@@ -749,16 +744,16 @@ function ding_user_timeout_msg() {
     $callback = array('#type' => 'ajax', '#commands' => $commands);
     ajax_deliver($callback);
     drupal_exit();
-  } else {
+  }
+  else {
     // catch timeout everything else.
     drupal_add_js(
-      drupal_get_path('module', 'ding_user') . '/js/user_timeout.js',
-      array(
-        'every_page' => FALSE,
-        'group' => JS_DEFAULT,
-        'cache' => FALSE,
-        'weight' => 100,
-      )
+        drupal_get_path('module', 'ding_user') . '/js/user_timeout.js', array(
+      'every_page' => FALSE,
+      'group' => JS_DEFAULT,
+      'cache' => FALSE,
+      'weight' => 100,
+        )
     );
   }
 }
@@ -844,10 +839,10 @@ class DingUserCredentialsCache extends DrupalDatabaseCache {
         $item = $this->prepareItem($item);
         if ($item) {
           $cache[$item->cid] = $item;
-          if ( variable_get('ding_user_creds_lifetype', 'initial') == 'refresh' ) {
+          if (variable_get('ding_user_creds_lifetype', 'initial') == 'refresh') {
             // postpone expire ding user credentials
             db_update($this->bin)
-                ->fields(array('expire' => REQUEST_TIME + variable_get('ding_user_creds_lifetime', DING_USER_DEFAULT_CREDS_LIFETIME), ))
+                ->fields(array('expire' => REQUEST_TIME + variable_get('ding_user_creds_lifetime', DING_USER_DEFAULT_CREDS_LIFETIME),))
                 ->condition('cid', $item->cid)
                 ->execute();
           }
