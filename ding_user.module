@@ -583,12 +583,16 @@ function ding_user_form_profile2_form_alter(&$form, &$form_state) {
           $form['#title'] = $profile_tab->label;
           if (is_array($profile_tab->form)) {
             foreach ($profile_tab->form as $form_tab) {
-              $form += drupal_get_form($form_tab);
+              $profileform = drupal_get_form($form_tab);
+              $profileform += $form;
+              $form = $profileform;
               field_attach_form('profile2', $profile, $form, $form_state);
             }
           }
           elseif (!empty($profile_tab->form)) {
-            $form += drupal_get_form($profile_tab->form);
+            $profileform = drupal_get_form($profile_tab->form);
+            $profileform += $form;
+            $form = $profileform;
             field_attach_form('profile2', $profile, $form, $form_state);
           }
           drupal_set_title($form['#title']);
