@@ -820,7 +820,11 @@ function ding_user_save_creds($auth_res, $account) {
 /**
  * Check if the given account is a user authenticated through a provider.
  */
-function ding_user_is_provider_user($account) {
+function ding_user_is_provider_user($account=NULL) {
+  if(!isset($account)) {
+    global $user;
+    $account = $user;
+  }
   static $uid;
   static $names;
   if (!isset($uid) || $uid != $account->uid) {
