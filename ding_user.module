@@ -443,7 +443,7 @@ function ding_user_user_login_validate($form, &$form_state) {
 
 
       // set additional tabs in profile2
-      _ding_user_profile2_tabs($account);
+      //_ding_user_profile2_tabs($account);
 
       // Let provider initialise the profile. Assume they save it if need be.
       if (ding_provider_implements('user', 'profile_init')) {
