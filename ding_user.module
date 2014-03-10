@@ -505,7 +505,7 @@ function _ding_user_create_account($auth_name, $auth_res) {
       'init' => $auth_name,
       'status' => 1,
       'access' => REQUEST_TIME,
-      'mail' => '',
+      'mail' => $auth_name,
     );
 
     if (isset($auth_res['user'])) {
