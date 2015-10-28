@@ -9,44 +9,11 @@
  */
 define('DING_USER_DEFAULT_CREDS_LIFETIME', 900);
 
-/**
- * Implements hook_ctools_plugin_directory().
- *
- * It simply tells panels where to find the .inc files that define various
- * args, contexts, content_types. In this case the subdirectories of
- * ctools_plugin_example/panels are used.
- */
-function ding_user_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'ctools' && !empty($plugin)) {
-    return "plugins/$plugin";
-  }
-}
-
-/**
- * Implement hook_ctools_plugin_api().
- *
- * If you do this, CTools will pick up default panels pages in
- * <modulename>.pages_default.inc
- */
-function ding_user_ctools_plugin_api($module, $api) {
-  if ($module == 'page_manager' && $api == 'pages_default') {
-    return array('version' => 1);
-  }
-}
 
 /**
  * Implements hook_menu().
  */
 function ding_user_menu() {
-  $items['user/%user/authenticate'] = array(
-    'title' => 'Authenticate',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('ding_user_authenticate_form'),
-    'access callback' => 'ding_user_access',
-    'access arguments' => array(1),
-    'file' => 'ding_user.pages.inc',
-    'type' => MENU_CALLBACK,
-  );
   $items['admin/config/ding/user'] = array(
     'title' => 'Ding user',
     'description' => 'Ding user settings : Timeout',
@@ -93,35 +60,6 @@ function ding_user_init() {
   }
 }
 
-/**
- * Implements hook_menu_alter().
- */
-function ding_user_menu_alter(&$items) {
-  // Hook in authentication handling to the regular user edit page.
-  // But don't if page_manager overrides it.
-  if (!module_exists('page_manager') || variable_get('page_manager_user_edit_disabled', TRUE)) {
-    if (isset($items['user/%user/edit']) && $items['user/%user/edit']['page callback'] == 'drupal_get_form') {
-      $items['user/%user/edit']['page callback'] = 'ding_provider_get_form';
-    }
-  }
-}
-
-/**
- * Implements hook_entity_info_alter().
- */
-function ding_user_entity_info_alter(&$entity_info) {
-  $ding_entity_info = ding_entity_info('ding_entity');
-  // Entity might not be defined yet (is the case in the installer).
-  if (isset($entity_info[$ding_entity_info['entity_type']]['view modes'])) {
-    // Add a user_list display mode for addon modules to use.
-    $entity_info[$ding_entity_info['entity_type']]['view modes'] += array(
-      'user_list' => array(
-        'label' => t('User lists'),
-        'custom settings' => TRUE,
-      ),
-    );
-  }
-}
 
 /**
  * Access callback.
@@ -161,18 +99,6 @@ function ding_user_form_alter(&$form, $form_state, $form_id) {
         $pos += 1;
       }
       array_splice($form['#validate'], $pos, 0, 'ding_user_user_login_validate');
-    // Add our own submit handler.
-    // $form['#submit'][] = 'ding_library_user_login_submit';
-    // Remove the standard user login links.
-    //unset($form['links']);
-    // Falling through on purpose.
-    case 'ding_user_authenticate_form':
-      if (isset($form_state['ajaxify'])) {
-        $form['actions']['submit']['#ajax'] = array(
-          'callback' => 'ding_user_authenticate_form_callback',
-          'wrapper' => drupal_html_id($form_id),
-        );
-      }
       break;
   }
 }
@@ -252,34 +178,6 @@ function ding_user_form_process_password_confirm($element) {
   return $element;
 }
 
-/**
- * Create the profile type for the given provider.
- *
- * This is a fallback in case the provider didn't create one.
- */
-function ding_user_create_profile_type($provider) {
-  $provider_profile_type = 'provider_' . $provider['module'];
-  $profile_type = new ProfileType(
-    array(
-      'type' => $provider_profile_type,
-      'label' => 'Provider profile for ' . $provider['title'],
-      'userCategory' => TRUE,
-      'userView' => TRUE,
-    )
-  );
-  $profile_type->save();
-  return $profile_type;
-}
-
-/**
- * Get the provider profile for the given user.
- */
-function ding_user_provider_profile($account) {
-  $provider = _ding_provider_get_provider('user');
-  $provider_profile_type = 'provider_' . $provider['module'];
-
-  return profile2_load_by_user($account, $provider_profile_type);
-}
 
 /**
  * Implements hook_user_presave().
@@ -371,18 +269,6 @@ function ding_user_ding_provider_user() {
 }
 
 /**
- * Return the page to redirect user to in order to authenticate/log
- * in. Used by ding_provider.
- */
-function ding_user_auth_page() {
-  global $user;
-  if ($user->uid > 0) {
-    return 'user/' . $user->uid . '/authenticate';
-  }
-  return 'user/login';
-}
-
-/**
  * Return a local hash for the given name.
  *
  * As logins may be CPR numbers, which is really sensitive information, we use
@@ -433,38 +319,19 @@ function ding_user_user_login_validate($form, &$form_state) {
         // Else use a standard authname.
         $auth_name = ding_user_default_authname($form_state['values']['name']);
       }
-
       $account = _ding_user_create_account($auth_name, $auth_res);
-
       // Save credentials for later. Do it early as the provider might expect
       // them in a hook_profile2_presave hook trigged by us saving a new
       // profile, or themselves in the profile_init callback.
       ding_user_save_creds($auth_res, $account);
-
-
-      // set additional tabs in profile2
-      //_ding_user_profile2_tabs($account);
-
-      // Let provider initialise the profile. Assume they save it if need be.
-      if (ding_provider_implements('user', 'profile_init')) {
-        $profile = _ding_user_create_profile2($account);
-        ding_provider_invoke('user', 'profile_init', $profile, $auth_res);
-      }
 
       if (isset($form_state['mail_me'])) {
         if (ding_provider_implements('user', 'mail_me')) {
           ding_provider_invoke('user', 'mail_me', $form_state['mail_me'], $account);
         }
       }
-
       // Log user in.
       $form_state['uid'] = $account->uid;
-      // We're not calling user_login_submit like user_external_login_register
-      // does, it's already the submit handler.
-      // TODO: Do we still need this?
-      if (ding_provider_implements('user', 'authenticate_finalize')) {
-        ding_provider_invoke('user', 'authenticate_finalize', $user);
-      }
     }
     else {
       if (isset($auth_res['messages'])) {
@@ -524,177 +391,6 @@ function _ding_user_create_account($auth_name, $auth_res) {
     ding_user_update_user($auth_res, $account);
   }
   return $account;
-}
-
-/**
- * Implements hook_profile2_access
- * @TODO; is this correct. Should permissions be set in admin ?
- * is it enough to check for provider_user ?
- * */
-function ding_user_profile2_access($op, $profile = NULL, $account = NULL) {
-  if (empty($profile)) {
-    return FALSE;
-  }
-  elseif (ding_user_is_provider_user($profile)) {
-    return TRUE;
-  }
-
-  return FALSE;
-}
-
-/**
- * Define hook_user_profile_tabs.
- * get profile2 definitions ('type_name', $form ).
- * create a profile2 if it doesn't exist.
- * load the profile
- * bind profile to user
- * */
-function _ding_user_profile2_tabs($account) {
-  // load profiles by invoking hook_user_profile2_tab
-  $profile_tabs = module_invoke_all('user_profile2_tabs');
-  foreach ($profile_tabs as $profile_tab) {
-    $profile_type = profile2_get_types($profile_tab->type);
-    // special case - profile_type has not yet been created
-    if (!$profile_type) {
-      $profile_type = new ProfileType(
-        array(
-          'type' => $profile_tab->type,
-          'label' => $profile_tab->label,
-          'userCategory' => TRUE,
-          'userView' => TRUE,
-        )
-      );
-      $profile_type->save();
-    }
-    // normal case; get the profile type
-    // Create a profile for current user.
-    $profile = new Profile(
-      array(
-        'user' => $account,
-        'type' => $profile_type,
-      )
-    );
-    // Bind profile to user.
-    $profile->save();
-  }
-}
-
-/**
- * Implements hook_form_FORM_ID_alter. (profile2_form).
- * get the correct form to display from modules implementing hook_profile2_tab.
- * the form may be an array of form id's
- * */
-function ding_user_form_profile2_form_alter(&$form, &$form_state) {
-  global $user;
-  if ($user->uid) {
-    if ((ding_user_is_provider_user($user))) {
-      $profile_tabs = module_invoke_all('user_profile2_tabs');
-      foreach ($profile_tabs as $profile_tab) {
-        $profile = profile2_load_by_user($user, $profile_tab->type);
-        if ($form['#user_category'] == $profile_tab->type) {
-          $form['#title'] = $profile_tab->label;
-          if (is_array($profile_tab->form)) {
-            foreach ($profile_tab->form as $form_tab) {
-              $profileform = drupal_get_form($form_tab);
-              $profileform += $form;
-              $form = $profileform;
-              field_attach_form('profile2', $profile, $form, $form_state);
-            }
-          }
-          elseif (!empty($profile_tab->form)) {
-            $profileform = drupal_get_form($profile_tab->form);
-            $profileform += $form;
-            $form = $profileform;
-            field_attach_form('profile2', $profile, $form, $form_state);
-          }
-          drupal_set_title($form['#title']);
-        }
-      }
-    }
-  }
-  return $form;
-}
-
-/**
- * deprecated; this method creates one hardcoded profile2 profile
- *
- */
-function _ding_user_create_profile2($account) {
-  $profile = ding_user_provider_profile($account);
-  if (!$profile) {
-    $provider = _ding_provider_get_provider('user');
-    $provider_profile_type = 'provider_' . $provider['module'];
-    // Check that we have a profile type for this provider.
-    if (!$profile_type = profile2_type_load($provider_profile_type)) {
-      // Create new type, if provider haven't.
-      $profile_type = ding_user_create_profile_type($provider);
-    }
-    // Create a profile for current user.
-    $profile = new Profile(
-      array(
-        'user' => $account,
-        'type' => $profile_type,
-      )
-    );
-
-    // Bind this profile to the user.
-    $profile->save();
-  }
-  return $profile;
-}
-
-/**
- * Ajax command to authenticate. Used by ding_provider.
- */
-function ajax_command_ding_user_authenticate($extra_data) {
-  global $user;
-  // @todo add support for user/login here.
-  module_load_include('inc', 'ding_user', 'ding_user.pages');
-  if ($user->uid) {
-    $title = t('Authenticate');
-    $form_id = 'ding_user_authenticate_form';
-  }
-  else {
-    $title = t('Login');
-    $form_id = 'user_login';
-  }
-  $form_state = array(
-    'ajaxify' => TRUE,
-  );
-  $form = drupal_build_form($form_id, $form_state);
-
-  $login_form = drupal_render($form);
-  return ajax_command_ding_popup('ding_user', $title, $login_form, array('resubmit' => TRUE, 'extra_data' => $extra_data));
-}
-
-/**
- * Ajax callback.
- */
-function ding_user_authenticate_form_callback($form, &$form_state) {
-  switch ($form['form_id']['#value']) {
-    case 'ding_user_authenticate_form':
-      $success = $form_state['authentication_success'];
-      break;
-    case 'user_login':
-      $success = !empty($form_state['uid']);
-      break;
-  }
-
-  $response = array(
-    '#type' => 'ajax',
-    '#commands' => array(),
-  );
-  if ($success) {
-    // Close dialog if successful.
-    $response['#commands'][] = ajax_command_ding_popup_close('ding_user');
-  }
-  else {
-    // Else redisplay form and messages.
-    $html = theme('status_messages') . drupal_render($form);
-    $response['#commands'][] = ajax_command_ding_popup('ding_user', t('Authenticate'), $html);
-  }
-
-  return $response;
 }
 
 /**
