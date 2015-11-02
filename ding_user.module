@@ -354,6 +354,18 @@ function ding_user_user_login_validate($form, &$form_state) {
 }
 
 /**
+ * Return the page to redirect user to in order to authenticate/log
+ * in. Used by ding_provider.
+ */
+function ding_user_auth_page() {
+  global $user;
+  if ($user->uid > 0) {
+    return 'user/' . $user->uid . '/authenticate';
+  }
+  return 'user/login';
+}
+
+/**
  * Create a provider account for drupal. Username will be a hashvalue of authname.
  * This account will be coupled with the provider user via the authmap table
  * */

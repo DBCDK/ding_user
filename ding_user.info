@@ -1,4 +1,4 @@
-name = Ding user
+name = Provider
 description = Handles authentication against user provider and other user related stuff.
 package = Ding!
 version = 7.x-0.19+dbc.14.2
