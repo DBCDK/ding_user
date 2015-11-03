@@ -1,6 +1,6 @@
-name = Provider
+name = ding user
 description = Handles authentication against user provider and other user related stuff.
-package = Ding!
+package = Provider
 version = 7.x-0.19+dbc.14.2
 core = 7.x
 ;files[] = tests/ding_user.test
