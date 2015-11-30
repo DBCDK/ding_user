@@ -1,7 +1,7 @@
 name = ding user
 description = Handles authentication against user provider and other user related stuff.
 package = Provider
-version = 7.x-0.19+dbc.14.2
+version = 7.x-0.19+dbc.15
 core = 7.x
 files[] = test/simpletest/ding_user.test
 dependencies[] = ding_provider
