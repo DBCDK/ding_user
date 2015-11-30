@@ -1,0 +1,58 @@
+#   test.list.yaml
+#   list of tests in the repository, and suggestions when to run them (can be overridden in test.conf.yaml or feature.test.conf.yaml).
+
+# List of:
+# <test type> :
+#   - name : <test suite>
+#       F.ex.: TestAgencySearch
+#     path :
+#       Optional. Path to file, if different from default path, and named different than <test suite>.<test type file extension>
+#       Default path: test/<test type>/<test suite>.<test type file extension>
+#     title :
+#       Optional. Title of the test suite, suitable for reports
+#     description :
+#       Optional. A short description of the test suite, suitable for reports
+#     group :
+#       Optional. One or more groups that the test suite fall into. F.ex.: [login]
+#     workflow :
+#       At what state in the workflow should the test be run.
+#       One or more of: feature, develop, staging, production, all. Default: [all]
+#     environment :
+#       Which database to test against.
+#       One or more of: empty, static, daily, production, all. Default: [all]
+#       - where static is a monthly snapshot of the database, and daily a daily snapshot.
+#       Tests that should never be run against a production database - either because they will mess up the database,
+#       or are certain fo fail, should explicit configure which database to test against. F.ex. [empty, static, daily]
+#     coverage :
+#       Test depth
+#       One or more of: quick, full, all. Default: [all].
+
+selenium :
+- name : DingUserFunctionalTest
+#   path :
+#     Path to file, if different from default path, and named different than <test suite>.py
+#     Default path: test/selenium/<test suite>.py
+simpletest :
+# DrupalUnitTestCase and DrupalWebTestCase
+# - name : <test suite>
+#   path :
+#     Path to file, if different from default path, and named different than <test suite>.test
+#     Default path: test/simpletest/<test suite>.test
+#   workflow :
+#     NB: 'all' test use standard Drupal test API: drush test-run --all (at least to begin with)
+phpunit :
+# - name : <test suite>
+#   path :
+#     Default path: test/phpunit/<test suite>
+syntax :
+# - name : <test suite>
+#   path :
+#     Default path: test/syntax/<test suite>
+manual :
+# - name : <test suite>
+#   path :
+#     Default path: test/manual/<test suite>
+other :
+# - name : <test suite>
+#   path :
+#     Default path: test/other/<test suite>
