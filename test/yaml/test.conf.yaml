@@ -1,0 +1,107 @@
+# feature.test.conf.yaml
+
+# Test configuration.
+# By default the tests to be run are collected from the test.list.yaml files in each repository.
+# This file overrides the default list, and include or exclude tests.
+
+# List of:
+# - [workflow]
+#     One of: feature, develop, staging, production
+#   - [environment]
+#       Which database to test against. One of: empty, static, daily
+#     - [coverage]
+#       Test depth. One or more of: quick, full. Default: [full].
+#       - include
+#         List of tests (as named in a test.list.yaml file) to be included that are not part of the default suggested set.
+#         F.ex.: [testSuiteFoo, testSuiteBar.testCaseBar]
+#       - exclude
+#         List of tests in the default suggested set that are to be excluded.
+
+- feature :
+  - empty :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :
+  - static :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :
+  - daily :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :
+- develop :
+  - empty :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :
+  - static :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :
+  - daily :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :
+- staging :
+  - empty :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :
+  - static :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :
+  - daily :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :
+- production :
+  - empty :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :
+  - static :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :
+  - daily :
+    - quick :
+      - include :
+      - exclude :
+    - full :
+      - include :
+      - exclude :

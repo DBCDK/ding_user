@@ -1,0 +1,52 @@
+# test.list.yaml
+# list of tests in the repository, and suggestions when to run them (can be overridden in test.conf.yaml or feature.test.conf.yaml).
+
+# List of:
+# - [test type] :
+#   - name :
+#       [test suite]
+#       F.ex.: TestAgencySearch
+#     path :
+#       Path to file, if different from default path, and named different than [test suite].py
+#       Default path: test/[test type]/[test suite].py
+#     title :
+#       Title of the test suite, suitable for reports
+#     description :
+#       A short description of the test suite, suitable for reports
+#     group :
+#       Optional. Name of group that the test suite fall into. F.ex.: 'login'
+#     workflow :
+#       At what state in the workflow should the test be run.
+#       One or more of: feature, develop, staging, production, all. Default: [all]
+#     environment :
+#       Which database to test against.
+#       One or more of: empty, static, daily, all. Default: [all]
+#     coverage :
+#       Test depth
+#       One or more of: quick, full. Default: [full].
+#     no_prod :
+#       Tests that should never be run against a production database.
+#       Either because they will mess up the database, or are certain fo fail.
+#       F. ex.: [test suite] or [test suite].[test case]. Default: null.
+
+- selenium :
+- simpletest :
+    # DrupalUnitTestCase and DrupalWebTestCase
+    #   path :
+    #     Path to file, if different from default path, and named different than [test suite].test
+    #     Default path: test/simpletest/[test suite].test
+    #   workflow :
+    #     NB: 'all' test use standard Drupal test API: drush test-run --all (at least to begin with)
+- syntax :
+    #   path :
+    #     Default path: test/syntax/[test suite]
+- manual :
+    #   path :
+    #     Default path: test/manual/[test suite]
+- other :
+    #   path :
+    #     Default path: test/other/[test suite]
+
+# Notes:
+# groups to be defined in seperate file?
+# standard naming of test suites, and file path?
