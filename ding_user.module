@@ -157,6 +157,16 @@ function ding_user_form_user_profile_form_alter(&$form, &$form_state) {
       '#description' => t('To change the current pincode, enter the new pincode in both fields.'),
     );
   }
+
+  $form['actions']['submit']['#weight'] = 1;
+  $form['actions']['cancel']['#weight'] = 0;
+
+  $form['header'] = array(
+    '#type' => 'item',
+    '#description' => t('placeholder_header', array(), array('context' => 'ding_user')),
+    '#weight' => -11,
+  );
+  
 }
 
 /**
