@@ -32,9 +32,9 @@ class DingUserFunctionalTest extends DrupalWebTestCase {
     ));
   }
 
-  function testHEST( {
+  function testHEST() {
     $this->assertTrue(TRUE, 'true is true');
-  })
+  }
 
   /**
    * Test a user can log in.
