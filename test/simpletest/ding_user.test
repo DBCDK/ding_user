@@ -39,7 +39,7 @@ class DingUserFunctionalTest extends DrupalWebTestCase {
   /**
    * Test a user can log in.
    */
-/*function testLogin() {
+function testLogin() {
     // connie accepts any user whose password is last four chars of the
     // username
     $login_data = array(
@@ -63,7 +63,7 @@ class DingUserFunctionalTest extends DrupalWebTestCase {
     $this->drupalPost('user/login', $login_data, t('Log in'));
     $this->assertRaw(t('Member for'), t("Second login works."));
 
-  }*/
+  }
 
   /**
    * Test that an unknown user can't log in.
