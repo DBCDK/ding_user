@@ -33,7 +33,7 @@ class DingUserFunctionalTest extends DrupalWebTestCase {
   }
 
   function testHEST() {
-    $this->assertTrue(TRUE, 'true is true');
+    $this->assertTrue(FALSE, 'true is true');
   }
 
   /**
