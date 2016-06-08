@@ -27,13 +27,8 @@ class DingUserFunctionalTest extends DrupalWebTestCase {
     parent::setUp(array(
       'ding_user',
       'ding_provider',
-      'netpunkt_test_provider',
-      //'ding_user_test',
+      'netpunkt_test_provider'
     ));
-  }
-
-  function testHEST() {
-    $this->assertTrue(FALSE, 'true is true');
   }
 
   /**
