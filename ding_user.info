@@ -4,8 +4,8 @@ package = Provider
 version = 7.x-0.19+dbc.16
 core = 7.x
 ; NOTICE netpunkt specific test file
-files[] = test/simpletest/ding_user.test
+; files[] = test/simpletest/ding_user.test
 ; this one is for the ding code
-; files[] = tests/ding_user.test
+files[] = tests/ding_user.test
 dependencies[] = ding_provider
 configure = admin/config/ding/user
