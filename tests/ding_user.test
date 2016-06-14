@@ -161,7 +161,7 @@ class DingUserFunctionalTest extends DrupalWebTestCase {
     // connie accepts any user whose password is last four chars of the
     // username
     $login_data = array('name' => 'twain', 'pass' => 'wain');
-    $false_login_data = array('name' => 'shakespeare', 'pass' => 'eare');
+    $false_login_data = array('name' => 'shakespeare', 'pass' => 'hest');
 
     $this->drupalGet('user/login');
     $this->assertRaw(t('Enter the password that accompanies your username.'), t("We're not logged in."));

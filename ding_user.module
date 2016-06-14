@@ -483,15 +483,7 @@ function ding_user_timeout_msg() {
     drupal_exit();
   }
   else {
-    // catch timeout everything else.
-    drupal_add_js(
-        drupal_get_path('module', 'ding_user') . '/js/user_timeout.js', array(
-      'every_page' => FALSE,
-      'group' => JS_DEFAULT,
-      'cache' => FALSE,
-      'weight' => 100,
-        )
-    );
+    drupal_goto('user/');
   }
 }
 
