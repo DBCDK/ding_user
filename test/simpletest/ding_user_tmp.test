@@ -38,7 +38,7 @@ class DingUserTmpTest extends DrupalWebTestCase {
    * bar.
    */
   function testBar() {
-    $this->assertTrue(FALSE, print_r('bar', 1));
+    $this->assertTrue(FALSE, print_r('baz', 1));
   }
 
 }
