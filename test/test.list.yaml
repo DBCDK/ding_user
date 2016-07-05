@@ -33,7 +33,6 @@ selenium :
 #     Default path: test/selenium/<test suite>.py
 simpletest :
 - name : DingUserFunctionTest
-- name : DingUserTmpTest
 # DrupalUnitTestCase and DrupalWebTestCase
 # - name : <test suite>
 #   path :
