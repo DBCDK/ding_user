@@ -9,7 +9,6 @@ core = 7.x
 ; this one is for the ding code
 
 files[] = tests/ding_user.test
-files[] = test/simpletest/ding_user_tmp.test
 files[] = test/simpletest/ding_user.test
 
 dependencies[] = ding_provider
