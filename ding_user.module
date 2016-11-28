@@ -449,7 +449,7 @@ function ding_user_get_creds($account = NULL) {
   // Log out user who are authenticated but has no other roles (i.e. ding user)
   if (user_is_logged_in() && sizeof($roles) == 1 && $roles[0] == 'authenticated user') {
     // unless we're using persistent login, and they have a persistent login cookie.
-      if (module_exists('ding_persistent_login') && $creds = ding_persistent_login_get_creds($account->mail)) {
+    if (module_exists('ding_persistent_login') && $creds = ding_persistent_login_get_creds($account->mail)) {
       return $creds;
     }
     watchdog('user', 'Session timeout for %name.', array('%name' => $account->name));
