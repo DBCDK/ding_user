@@ -11,7 +11,7 @@
 /**
  * Check that basic user login functionality works.
  */
-class DingUserFunctionalTest extends DrupalWebTestCase {
+class DingUserFunctionTest extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(

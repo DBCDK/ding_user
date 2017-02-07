@@ -1,11 +1,16 @@
 name = ding user
 description = Handles authentication against user provider and other user related stuff.
 package = Provider
-version = 7.x-0.19+dbc.17
+version = 7.x-0.19-dbc.19
 core = 7.x
+
 ; NOTICE netpunkt specific test file
-; files[] = test/simpletest/ding_user.test
+; files[] = test/simpletest/ding_user.webtest
 ; this one is for the ding code
+
 files[] = tests/ding_user.test
+files[] = test/simpletest/ding_user.test
+
 dependencies[] = ding_provider
+
 configure = admin/config/ding/user
