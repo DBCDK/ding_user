@@ -31,6 +31,10 @@ function ding_user_menu() {
  * Check if the user's session has timed out, and update timeout if ding_user_creds_lifetype = 'refresh'.
  */
 function ding_user_init() {
+  if(variable_get('ding_user_disable_autologout', FALSE) === TRUE){
+    return TRUE;
+  }
+
   global $user, $is_https;
 
 
@@ -166,7 +170,7 @@ function ding_user_form_user_profile_form_alter(&$form, &$form_state) {
     '#description' => t('placeholder_header', array(), array('context' => 'ding_user')),
     '#weight' => -11,
   );
-  
+
 }
 
 /**
