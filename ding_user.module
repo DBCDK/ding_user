@@ -33,6 +33,9 @@ function ding_user_menu() {
 function ding_user_init() {
   global $user, $is_https;
 
+  if(variable_get('ding_user_disable_autologout', FALSE) === TRUE){
+   return TRUE;
+  }
 
   if (variable_get('securepages_enable', 0) && basename($_SERVER['PHP_SELF']) == 'index.php' && php_sapi_name() != 'cli' && !$is_https) {
     return;
@@ -166,7 +169,7 @@ function ding_user_form_user_profile_form_alter(&$form, &$form_state) {
     '#description' => t('placeholder_header', array(), array('context' => 'ding_user')),
     '#weight' => -11,
   );
-  
+
 }
 
 /**
