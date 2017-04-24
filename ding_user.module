@@ -244,7 +244,6 @@ function ding_user_user_presave(&$edit, $account, $category) {
 function ding_user_user_logout($account) {
   // Ensure the credentials is removed from cache.
   cache_clear_all(session_name() . '-' . $account->uid, 'cache_ding_user_credentials');
-  bibdk_heimdal_do_logout();
 }
 
 /**
