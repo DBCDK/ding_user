@@ -1,0 +1,32 @@
+# feature.test.conf.yaml
+
+# Test configuration for feature branches.
+# By default the tests to be run are collected from the test.list.yaml files in each repository.
+# This file overrides the default list, and may include or exclude tests.
+
+# List of:
+# <include|exclude> :
+# - name :
+#     <test suite>
+#     As defined in test.list.yaml - F.ex.: TestAgencySearch
+#   workflow :
+#     At what state in the workflow the test should/shouldn't be run.
+#     One or more of: [feature, develop, staging, production, all]. Default: [all]
+#   environment :
+#     Which database  the test should/shouldn't be tested against.
+#     One or more of: [empty, static, daily, all]. Default: [all]
+#   coverage :
+#     The test depth the test should/shouldn't be run.
+#     One or more of: [quick, full, all]. Default: [all].
+
+
+include :
+  - name :
+    workflow :
+    environment :
+    coverage :
+exclude :
+  - name :
+    workflow :
+    environment :
+    coverage :
