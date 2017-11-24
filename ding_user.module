@@ -45,6 +45,13 @@ function ding_user_init() {
   if (isset($_GET['pass-reset-token']) || (isset($_POST['form_id']) && $_POST['form_id'] == 'user_pass_reset')) {
     return;
   }
+
+  // Fix for heimdal login
+  if (isset($_SESSION['heimdal_logout']))  {
+    unset($_SESSION['heimdal_logout']);
+    return TRUE;
+  }
+
   global $user;
   if (!ding_user_is_provider_user($user)) {
     return true;
