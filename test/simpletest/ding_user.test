@@ -22,21 +22,25 @@ class DingUserFunctionTest extends DrupalWebTestCase {
   }
 
   function setUp() {
-    $this->profile = 'minimal';
-
     parent::setUp(array(
       'ding_user',
       'ding_provider',
       'netpunkt_test_provider'
     ));
+
+    menu_rebuild();
+  }
+
+  function test_runner() {
+    $this->Login();
   }
 
   /**
    * Test a user can log in.
    */
-function testLogin() {
-    // connie accepts any user whose password is last four chars of the
-    // username
+  function Login() {
+    // netpunkt_test_provider accepts any user whose password is last four chars of the
+    // username eg name:twain; pass:wain
     $login_data = array(
       'name' => 'twain',
       'library' => 'hest',
