@@ -17,7 +17,7 @@ class DingUserFunctionTest extends DrupalWebTestCase {
     return array(
       'name' => 'Ding user',
       'description' => 'Basic user login functionality through a provider.',
-      'group' => 'Netpunkt_FIX_THIS_TEST',
+      'group' => 'Netpunkt',
     );
   }
 
